@@ -1,0 +1,18 @@
+include 'subprojects/griffon-materialdesignicons-core'
+include 'subprojects/griffon-materialdesignicons-swing'
+include 'subprojects/griffon-materialdesignicons-javafx'
+include 'subprojects/griffon-materialdesignicons-swing-groovy'
+include 'subprojects/griffon-materialdesignicons-javafx-groovy'
+include 'subprojects/griffon-materialdesignicons-guide'
+
+rootProject.name = 'griffon-materialdesignicons-plugin'
+rootProject.children.each { project ->
+    int slash = project.name.indexOf('/')
+    String fileBaseName = project.name[(slash + 1)..-1]
+    String projectDirName = project.name
+    project.name = fileBaseName
+    project.projectDir = new File(settingsDir, projectDirName)
+    project.buildFileName = "${fileBaseName}.gradle"
+    assert project.projectDir.isDirectory()
+    assert project.buildFile.isFile()
+}

@@ -1,0 +1,4 @@
+
+:link_materialdesignicons: link:http://erikflowers.github.io/materialdesign-icons/[MaterialDesignIcons, window="_blank"]
+:api_link_materialdesignicons_icon_javafx: link:api/griffon/javafx/support/materialdesignicons/MaterialDesignIcon.html[griffon.javafx.support.materialdesignicons.MaterialDesignIcon, window="_blank"]
+:api_link_materialdesignicons_icon_swing: link:api/griffon/swing/support/materialdesignicons/MaterialDesignIcon.html[griffon.swing.support.materialdesignicons.MaterialDesignIcon, window="_blank"]
