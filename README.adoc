@@ -14,11 +14,11 @@ link:http://erikflowers.github.io/materialdesign-icons/[MaterialDesignIcons, win
 Refer to the link:http://griffon-plugins.github.io/{project-name}/[plugin guide, window="_blank"] for
 further information on configuration and usage.
 
-MaterialDesignIcons Font by Lukas Bischoff and Erik Flowers
+MaterialDesignIcons Font by @templarian
 
 Font License: SIL OFL 1.1 (http://scripts.sil.org/OFL) +
 Applies to all font files
 
-Code License: MIT (http://opensource.org/licenses/mit-license.html) +
+Code License: CCSA 4.0 +
 Applies to icons and artwork
 
