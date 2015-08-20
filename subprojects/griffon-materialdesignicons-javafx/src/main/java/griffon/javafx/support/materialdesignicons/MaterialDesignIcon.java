@@ -17,7 +17,14 @@ package griffon.javafx.support.materialdesignicons;
 
 import griffon.core.editors.PropertyEditorResolver;
 import griffon.plugins.materialdesignicons.MaterialDesignIconFont;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -34,7 +41,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class MaterialDesignIcon extends Text {
     private static final String MATERIALDESIGNICON_SET = "META-INF/resources/materialdesignicons/1.1.70/fonts/materialdesignicons-webfont.ttf";
-    private static final String ERROR_FONT_MATERIALDESIGNICON_NULL = "Argument 'materialdesignIcon' must not be null";
+    private static final String ERROR_MATERIALDESIGN_NULL = "Argument 'materialDesignIcon' must not be null";
 
     private static final String MATERIALDESIGNICON_FONT_FAMILY;
 
@@ -43,18 +50,32 @@ public class MaterialDesignIcon extends Text {
         MATERIALDESIGNICON_FONT_FAMILY = font.getFamily();
     }
 
-    private MaterialDesignIconFont materialdesignIcon;
-    private int iconSize;
-    private Color iconColor;
+    private ObjectProperty<MaterialDesignIconFont> materialDesignIcon;
+    private IntegerProperty iconSize;
+    private ObjectProperty<Paint> iconColor;
+
+    private ChangeListener<Number> iconSizeChangeListener = new ChangeListener<Number>() {
+        @Override
+        public void changed(ObservableValue<? extends Number> v, Number o, Number n) {
+            setStyle(getStyle() + " -fx-font-size: " + n + "px;");
+        }
+    };
+
+    private ChangeListener<Paint> iconColorChangeListener = new ChangeListener<Paint>() {
+        @Override
+        public void changed(ObservableValue<? extends Paint> v, Paint o, Paint n) {
+            setFill(n);
+        }
+    };
 
     public MaterialDesignIcon() {
         this(MaterialDesignIconFont.MDI_ACCOUNT);
     }
 
-    public MaterialDesignIcon(@Nonnull MaterialDesignIconFont materialdesignIcon) {
-        this.materialdesignIcon = requireNonNull(materialdesignIcon, ERROR_FONT_MATERIALDESIGNICON_NULL);
+    public MaterialDesignIcon(@Nonnull MaterialDesignIconFont materialDesignIcon) {
+        setMaterialDesignIconFont(requireNonNull(materialDesignIcon, ERROR_MATERIALDESIGN_NULL));
         getStyleClass().add("materialdesignicons-icon");
-        setText(String.valueOf(materialdesignIcon.getCode()));
+        setText(String.valueOf(materialDesignIcon.getCode()));
         setStyle("-fx-font-family: '" + MATERIALDESIGNICON_FONT_FAMILY + "';");
         setIconSize(16);
         setIconColor(Color.BLACK);
@@ -63,45 +84,78 @@ public class MaterialDesignIcon extends Text {
     public MaterialDesignIcon(@Nonnull String description) {
         this(MaterialDesignIconFont.findByDescription(description));
         resolveSize(description);
-        resolveColor(description);
+        resolvePaint(description);
+    }
+
+    public ObjectProperty<MaterialDesignIconFont> materialDesignIconProperty() {
+        if (materialDesignIcon == null) {
+            materialDesignIcon = new SimpleObjectProperty<>(this, "materialDesignIcon", null);
+        }
+        return materialDesignIcon;
+    }
+
+    public ObjectProperty<MaterialDesignIconFont> getMaterialDesignIconProperty() {
+        return materialDesignIconProperty();
+    }
+
+    public IntegerProperty iconSizeProperty() {
+        if (iconSize == null) {
+            iconSize = new SimpleIntegerProperty(this, "iconSize", 16);
+            iconSize.addListener(iconSizeChangeListener);
+        }
+        return iconSize;
+    }
+
+    public IntegerProperty getIconSizeProperty() {
+        return iconSizeProperty();
+    }
+
+    public ObjectProperty<Paint> iconColorProperty() {
+        if (iconColor == null) {
+            iconColor = new SimpleObjectProperty<>(this, "iconColor", null);
+            iconColor.addListener(iconColorChangeListener);
+        }
+        return iconColor;
+    }
+
+    public ObjectProperty<Paint> getIconColorProperty() {
+        return iconColorProperty();
     }
 
     @Nonnull
     public MaterialDesignIconFont getMaterialDesignIconFont() {
-        return materialdesignIcon;
+        return materialDesignIconProperty().get();
     }
 
-    public void setMaterialDesignIcon(@Nonnull MaterialDesignIconFont materialdesignIcon) {
-        this.materialdesignIcon = requireNonNull(materialdesignIcon, ERROR_FONT_MATERIALDESIGNICON_NULL);
-        setText(String.valueOf(materialdesignIcon.getCode()));
+    public void setMaterialDesignIconFont(@Nonnull MaterialDesignIconFont materialDesignIcon) {
+        materialDesignIconProperty().set(requireNonNull(materialDesignIcon, ERROR_MATERIALDESIGN_NULL));
+        setText(String.valueOf(materialDesignIcon.getCode()));
     }
 
-    public void setMaterialDesignIcon(@Nonnull String description) {
+    public void setMaterialDesignIconFont(@Nonnull String description) {
         requireNonBlank(description, "Argument 'description' must not be blank");
-        setMaterialDesignIcon(MaterialDesignIconFont.findByDescription(description));
+        materialDesignIconProperty().set(MaterialDesignIconFont.findByDescription(description));
         resolveSize(description);
-        resolveColor(description);
+        resolvePaint(description);
     }
 
     public void setIconSize(int size) {
         requireState(size > 0, "Argument 'size' must be greater than zero.");
-        setStyle(getStyle() + " -fx-font-size: " + size + "px;");
-        this.iconSize = size;
+        iconSizeProperty().set(size);
     }
 
     public int getIconSize() {
-        return iconSize;
+        return iconSizeProperty().get();
     }
 
-    public void setIconColor(@Nonnull Color color) {
+    public void setIconColor(@Nonnull Paint color) {
         requireNonNull(color, "Argument 'color' must not be null");
-        setFill(color);
-        this.iconColor = color;
+        iconColorProperty().set(color);
     }
 
     @Nonnull
-    public Color getIconColor() {
-        return iconColor;
+    public Paint getIconColor() {
+        return iconColorProperty().get();
     }
 
     private void resolveSize(String description) {
@@ -117,14 +171,14 @@ public class MaterialDesignIcon extends Text {
         }
     }
 
-    private void resolveColor(String description) {
+    private void resolvePaint(String description) {
         String[] parts = description.split(":");
         if (parts.length > 2) {
-            PropertyEditor editor = PropertyEditorResolver.findEditor(Color.class);
+            PropertyEditor editor = PropertyEditorResolver.findEditor(Paint.class);
             editor.setValue(parts[2]);
-            Color color = (Color) editor.getValue();
-            if (color != null) {
-                setIconColor(color);
+            Paint paint = (Paint) editor.getValue();
+            if (paint != null) {
+                setIconColor(paint);
             }
         }
     }
